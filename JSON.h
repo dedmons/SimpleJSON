@@ -46,7 +46,7 @@ static inline bool strminlen(const char *s, size_t n) {
 // Custom types
 class JSONValue;
 typedef std::vector<JSONValue*> JSONArray;
-#ifndef JSON_UMAP
+#ifdef JSON_UMAP
   typedef std::unordered_map<std::string, JSONValue*> JSONObject;
 #else
   typedef std::map<std::string, JSONValue*> JSONObject;
