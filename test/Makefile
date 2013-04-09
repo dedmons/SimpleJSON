@@ -9,6 +9,7 @@ LDFLAGS=
 # Generates list of object files from all the
 #   source files in directory
 OBJS = $(addsuffix .o, $(basename $(shell find *.cpp)))
+OBJS += $(addsuffix .o, $(basename $(shell find ../*.cpp)))
 DEPS = $(OBJS:.o=.d)
 
 # Set executable name
@@ -26,8 +27,9 @@ endif
 
 # Phony targets to run dependencies in order
 clang: | setclang $(EXEC)
-gcc: | setgcc $(EXEC)
+gcc: | setgcc
 gcc48: | setgcc48 $(EXEC)
+gcc47: | setgcc47 $(EXEC)
 
 # Uses cppcheck for more static analysys
 lint:
@@ -49,7 +51,7 @@ setclang:
 	@echo "Setting clang"
 	$(eval CXX = clang++)
 	$(eval CXX_LINK = clang++)
-	$(eval CXXFLAGS = $(CXXFLAGS) -stdlib=libc++)
+	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 
 # Phony target to use g++ for compile and linking
 setgcc48:
@@ -59,11 +61,22 @@ setgcc48:
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 
 # Phony target to use g++ for compile and linking
-setgcc:
+setgcc47:
 	@echo "Setting g++"
-	$(eval CXX = g++)
-	$(eval CXX_LINK = g++)
-	$(eval CXXFLAGS = $(CXXFLAGS))
+	$(eval CXX = g++-4.7)
+	$(eval CXX_LINK = g++-4.7)
+	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
+
+# Phony target to use g++ for compile and linking
+setgcc:
+	@echo ""
+	@echo "//=====================================================\\"
+	@echo "||  You must specify what version of GCC you are using ||"
+	@echo "||    Example: make gcc47 or make gcc46                ||"
+	@echo "||                                                     ||"
+	@echo "||  Or use a better compiler like clang :D             ||"
+	@echo "\\=====================================================//"
+	@echo ""
 
 # $< refers to the first dependency
 # Uses static pattern rule to keep from compiling all
@@ -75,7 +88,7 @@ $(OBJS): %.o: %.cpp
 $(DEPS): %.d: %.cpp
 	@echo "Generating "$@
 	@set -e; rm -f $@; \
-      g++ -MM $(CPPFLAGS) $< > $@.$$$$; \
+      $(CXX) -MM -std=c++11 $< > $@.$$$$; \
       sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
       rm -f $@.$$$$
 
