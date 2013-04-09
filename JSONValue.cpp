@@ -10,8 +10,8 @@
 #include "JSONValue.h"
 
 // Macros to free an array/object
-#define FREE_ARRAY(x) { JSONArray::iterator iter; for (iter = x.begin(); iter != x.end(); iter++) { delete *iter; } }
-#define FREE_OBJECT(x) { JSONObject::iterator iter; for (iter = x.begin(); iter != x.end(); iter++) { delete (*iter).second; } }
+#define FREE_ARRAY(x) { JSONArray::iterator iter; for (iter = x.begin(); iter != x.end(); ++iter) { delete *iter; } }
+#define FREE_OBJECT(x) { JSONObject::iterator iter; for (iter = x.begin(); iter != x.end(); ++iter) { delete (*iter).second; } }
 
 /**
  * Parses a JSON encoded value to a JSONValue object
@@ -282,10 +282,14 @@ JSONValue *JSONValue::Parse(const char **data)
  *
  * @access public
  */
-JSONValue::JSONValue(/*NULL*/)
-{
-  type = JSONType_Null;
-}
+JSONValue::JSONValue(/*NULL*/):
+ type(JSONType_Null),
+ string_value(),
+ bool_value(),
+ number_value(),
+ array_value(),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type String
@@ -294,11 +298,14 @@ JSONValue::JSONValue(/*NULL*/)
  *
  * @param char* m_char_value The string to use as the value
  */
-JSONValue::JSONValue(const char *m_char_value)
-{
-  type = JSONType_String;
-  string_value = std::string(m_char_value);
-}
+JSONValue::JSONValue(const char *m_char_value):
+ type(JSONType_String),
+ string_value(m_char_value),
+ bool_value(),
+ number_value(),
+ array_value(),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type String
@@ -307,11 +314,14 @@ JSONValue::JSONValue(const char *m_char_value)
  *
  * @param std::string m_string_value The string to use as the value
  */
-JSONValue::JSONValue(const std::string &m_string_value)
-{
-  type = JSONType_String;
-  string_value = m_string_value;
-}
+JSONValue::JSONValue(const std::string &m_string_value):
+ type(JSONType_String),
+ string_value(m_string_value),
+ bool_value(),
+ number_value(),
+ array_value(),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type Bool
@@ -320,11 +330,14 @@ JSONValue::JSONValue(const std::string &m_string_value)
  *
  * @param bool m_bool_value The bool to use as the value
  */
-JSONValue::JSONValue(bool m_bool_value)
-{
-  type = JSONType_Bool;
-  bool_value = m_bool_value;
-}
+JSONValue::JSONValue(bool m_bool_value):
+ type(JSONType_Bool),
+ string_value(),
+ bool_value(m_bool_value),
+ number_value(),
+ array_value(),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type Number
@@ -333,11 +346,14 @@ JSONValue::JSONValue(bool m_bool_value)
  *
  * @param double m_number_value The number to use as the value
  */
-JSONValue::JSONValue(double m_number_value)
-{
-  type = JSONType_Number;
-  number_value = m_number_value;
-}
+JSONValue::JSONValue(double m_number_value):
+ type(JSONType_Number),
+ string_value(),
+ bool_value(),
+ number_value(m_number_value),
+ array_value(),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type Array
@@ -346,11 +362,14 @@ JSONValue::JSONValue(double m_number_value)
  *
  * @param JSONArray m_array_value The JSONArray to use as the value
  */
-JSONValue::JSONValue(const JSONArray &m_array_value)
-{
-  type = JSONType_Array;
-  array_value = m_array_value;
-}
+JSONValue::JSONValue(const JSONArray &m_array_value):
+ type(JSONType_Array),
+ string_value(),
+ bool_value(),
+ number_value(),
+ array_value(m_array_value),
+ object_value()
+{}
 
 /**
  * Basic constructor for creating a JSON Value of type Object
@@ -359,24 +378,23 @@ JSONValue::JSONValue(const JSONArray &m_array_value)
  *
  * @param JSONObject m_object_value The JSONObject to use as the value
  */
-JSONValue::JSONValue(const JSONObject &m_object_value)
-{
-  type = JSONType_Object;
-  object_value = m_object_value;
-}
+JSONValue::JSONValue(const JSONObject &m_object_value):
+ type(JSONType_Object),
+ string_value(),
+ bool_value(),
+ number_value(),
+ array_value(),
+ object_value(m_object_value)
+{}
 
-JSONValue::JSONValue(JSONValue &other)
-{
-  type = other.type;
-  switch (type){
-    case JSONType_Object: object_value = other.object_value; break;
-    case JSONType_Array: array_value = other.array_value; break;
-    case JSONType_String: string_value = other.string_value; break;
-    case JSONType_Number: number_value = other.number_value; break;
-    case JSONType_Bool: bool_value = other.bool_value; break;
-    default: break;
-  }
-}
+JSONValue::JSONValue(JSONValue &other):
+ type(other.type),
+ string_value(other.string_value),
+ bool_value(other.bool_value),
+ number_value(other.number_value),
+ array_value(other.array_value),
+ object_value(other.object_value)
+{}
 
 /**
  * The destructor for the JSON Value object
@@ -389,16 +407,14 @@ JSONValue::~JSONValue()
   if (type == JSONType_Array)
   {
     JSONArray::iterator iter;
-    for (iter = array_value.begin(); iter != array_value.end(); iter++)
+    for (iter = array_value.begin(); iter != array_value.end(); ++iter)
       delete *iter;
   }
   else if (type == JSONType_Object)
   {
     JSONObject::iterator iter;
-    for (iter = object_value.begin(); iter != object_value.end(); iter++)
-    {
+    for (iter = object_value.begin(); iter != object_value.end(); ++iter)
       delete (*iter).second;
-    }
   }
 }
 
@@ -811,7 +827,7 @@ std::string JSONValue::StringifyString(const std::string &str)
       str_out += chr;
     }
 
-    iter++;
+    ++iter;
   }
 
   str_out += "\"";
