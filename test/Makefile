@@ -51,7 +51,11 @@ setclang:
 	@echo "Setting clang"
 	$(eval CXX = clang++)
 	$(eval CXX_LINK = clang++)
+ifeq ($(shell uname),Darwin)
+	$(eval CXXFLAGS = $(CXXFLAGS) -stdlib=libc++)
+else 
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
+endif
 
 # Phony target to use g++ for compile and linking
 setgcc48:
