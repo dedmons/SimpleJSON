@@ -15,17 +15,24 @@
 // include regular map and set macro
     #include <map>
   #endif
+  #if defined(__has_include) && __has_include(<utility>)
+    #include <utility>
+  #else
+    #include <algorithm>
+  #endif
 #else 
   #define GCC_VERSION (__GNUC__ * 10000 \
                         + __GNUC_MINOR__ * 100 \
                         + __GNUC_PATCHLEVEL__)
   #if GCC_VERSION >= 40600
     #include <unordered_map>
+    #include <utility>
     #ifndef JSON_UMAP
       #define JSON_UMAP
     #endif
   #else
     #include <map>
+    #include <algorithm>
   #endif
 #endif
 

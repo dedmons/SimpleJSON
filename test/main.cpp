@@ -42,19 +42,34 @@ int main(){
 
   JSONValue *value = JSON::Parse(str.c_str());
   if (value != NULL){
-    std::cout << "PASS" << std::endl;
-    std::cout << value->Child("Fields")->Child("B")->Stringify() << std::endl;
+    print("");
+    print("Parsing File: PASS");
+    print("");
   }
-  else
+  else{
     std::cout << "FAIL" << std::endl;
-
-
-  std::istringstream f("object.loc.1.x,4,7");
-  std::string s;
-
-  while (std::getline(f,s,'.')){
-    std::cout << s << std::endl;
+    return 1;
   }
+
+
+  print("Value at Fields->B");
+  print(value->Child("Fields")->Child("B")->Stringify());
+  print("");
+  print("Value at Fields->B->#2");
+  print(value->ChildAtPath("Fields.B.#2")->Stringify());
+  print("");
+  print(value->ChildAtPath("Fields.obj")->Stringify());
+  print("");
+
+  if (value->HasChildAtPath("Fields.obj"))
+    print("Has value at 'Fields.obj.#0.vals.#1'");
+  else
+    print("Error: Should have value at 'Fields.obj.#0.vals.#1'");
+
+  if (! value->HasChildAtPath("Fields.obj.#2.vals.#1"))
+    print("Dose not have value at 'Fields.obj.#2.vals.#1'");
+  else
+    print("Error: Should not have value at 'Fields.obj.#2.vals.#1'");
 
   if (value) delete value;
 

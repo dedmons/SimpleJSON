@@ -13,6 +13,16 @@
 #define FREE_ARRAY(x) { JSONArray::iterator iter; for (iter = x.begin(); iter != x.end(); ++iter) { delete *iter; } }
 #define FREE_OBJECT(x) { JSONObject::iterator iter; for (iter = x.begin(); iter != x.end(); ++iter) { delete (*iter).second; } }
 
+std::vector<std::string> getPathValues(const std::string& path) {
+  std::istringstream f(path);
+  std::string s;
+  std::vector<std::string> retval;
+  while (std::getline(f,s,'.')){
+    retval.push_back(s);
+  }
+  return retval;
+}
+
 /**
  * Parses a JSON encoded value to a JSONValue object
  *
@@ -387,7 +397,7 @@ JSONValue::JSONValue(const JSONObject &m_object_value):
  object_value(m_object_value)
 {}
 
-JSONValue::JSONValue(JSONValue &other):
+JSONValue::JSONValue(const JSONValue &other):
  type(other.type),
  string_value(other.string_value),
  bool_value(other.bool_value),
@@ -416,6 +426,28 @@ JSONValue::~JSONValue()
     for (iter = object_value.begin(); iter != object_value.end(); ++iter)
       delete (*iter).second;
   }
+}
+
+JSONValue &JSONValue::operator=(const JSONValue &other){
+  if(this == &other)
+    return *this;
+
+  this->type = other.type;
+  switch(this->type){
+    case JSONType_Null: break;
+    case JSONType_Bool: this->bool_value = other.bool_value; break;
+    case JSONType_String: this->string_value = other.string_value; break;
+    case JSONType_Number: this->number_value = other.number_value; break;
+    case JSONType_Object: 
+      FREE_OBJECT(this->object_value);
+      this->object_value = other.object_value; 
+      break;
+    case JSONType_Array:
+      FREE_ARRAY(this->array_value);
+      this->array_value = other.array_value;
+      break;
+  }
+  return *this;
 }
 
 /**
@@ -685,6 +717,71 @@ bool JSONValue::HasChild(const std::string& name) const
 JSONValue* JSONValue::Child(const std::string& name)
 {
   return this->Child(name.c_str());
+}
+
+/**
+ * [HasChildAtPath description]
+ * @param  path [description]
+ * @return      [description]
+ */
+bool JSONValue::HasChildAtPath(const std::string& path) const{
+  JSONValue retval(this);
+  std::vector<std::string> comp = getPathValues(path);
+
+  std::cout << retval.type << std::endl;
+
+  for (std::vector<std::string>::iterator it = comp.begin(); it != comp.end(); ++it){
+    std::cout << "Looking at: " << *it << std::endl;
+    if((*it).at(0) == '#'){
+      std::stringstream sst((*it).substr(1));
+      int pos;
+      sst >> pos;
+      if (retval.HasChild(pos)){
+        retval = retval.Child(pos);
+      } else {
+        std::cout << "No Index Child" << std::endl;
+        return false;
+      }
+    }
+    else if(retval.HasChild(*it)){
+      retval = retval.Child(*it);
+    } else {
+      std::cout << "No Child" << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * [ChildAtPath description]
+ * @param  path [description]
+ * @return      [description]
+ */
+JSONValue *JSONValue::ChildAtPath(const std::string& path){
+  JSONValue *retval = this;
+  std::vector<std::string> comp = getPathValues(path);
+
+  for (std::vector<std::string>::iterator it = comp.begin(); it != comp.end(); ++it){
+    if((*it).at(0) == '#'){
+      std::stringstream sst((*it).substr(1));
+      int pos;
+      sst >> pos;
+      if (retval->HasChild(pos)){
+        retval = retval->Child(pos);
+      } else {
+        return NULL;
+      }
+    }
+    else if(retval->HasChild(*it)){
+      retval = retval->Child(*it);
+    } else {
+      return NULL;
+    }
+  }
+
+  return retval;
 }
 
 /**

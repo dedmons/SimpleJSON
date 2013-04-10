@@ -22,8 +22,10 @@ public:
   JSONValue(double m_number_value);
   JSONValue(const JSONArray &m_array_value);
   JSONValue(const JSONObject &m_object_value);
-  JSONValue(JSONValue &other);
+  JSONValue(const JSONValue &other);
   ~JSONValue();
+
+  JSONValue& operator=(const JSONValue &other);
 
   bool IsNull() const;
   bool IsString() const;
@@ -45,6 +47,9 @@ public:
   JSONValue *Child(const char* name);
   bool HasChild(const std::string& name) const;
   JSONValue *Child(const std::string& name);
+
+  bool HasChildAtPath(const std::string& path) const;
+  JSONValue *ChildAtPath(const std::string& path);
 
   std::string Stringify() const;
 

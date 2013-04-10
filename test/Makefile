@@ -30,6 +30,7 @@ clang: | setclang $(EXEC)
 gcc: | setgcc
 gcc48: | setgcc48 $(EXEC)
 gcc47: | setgcc47 $(EXEC)
+gccd: | setgccdef $(EXEC)
 
 # Uses cppcheck for more static analysys
 lint:
@@ -64,12 +65,16 @@ setgcc48:
 	$(eval CXX_LINK = g++-4.8)
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 
-# Phony target to use g++ for compile and linking
 setgcc47:
 	@echo "Setting g++"
 	$(eval CXX = g++-4.7)
 	$(eval CXX_LINK = g++-4.7)
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
+
+setgccdef:
+	@echo "Setting g++"
+	$(eval CXX = g++)
+	$(eval CXX_LINK = g++)
 
 # Phony target to use g++ for compile and linking
 setgcc:
