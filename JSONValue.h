@@ -26,6 +26,8 @@ public:
   ~JSONValue();
 
   JSONValue& operator=(const JSONValue &other);
+  JSONValue& operator=(JSONValue *other);
+
 
   bool IsNull() const;
   bool IsString() const;

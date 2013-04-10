@@ -61,8 +61,10 @@ int main(){
   print(value->ChildAtPath("Fields.obj")->Stringify());
   print("");
 
-  if (value->HasChildAtPath("Fields.obj"))
+  if (value->HasChildAtPath("Fields.obj.#0.vals.#1")){
     print("Has value at 'Fields.obj.#0.vals.#1'");
+    print(value->ChildAtPath("Fields.obj.#0.vals.#1")->Stringify());
+  }
   else
     print("Error: Should have value at 'Fields.obj.#0.vals.#1'");
 
@@ -70,6 +72,8 @@ int main(){
     print("Dose not have value at 'Fields.obj.#2.vals.#1'");
   else
     print("Error: Should not have value at 'Fields.obj.#2.vals.#1'");
+
+  print(value->ChildAtPath("Fields.obj.#0")->Stringify());
 
   if (value) delete value;
 

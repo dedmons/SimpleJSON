@@ -399,11 +399,11 @@ JSONValue::JSONValue(const JSONObject &m_object_value):
 
 JSONValue::JSONValue(const JSONValue &other):
  type(other.type),
- string_value(other.string_value),
+ string_value(std::string(other.string_value)),
  bool_value(other.bool_value),
  number_value(other.number_value),
- array_value(other.array_value),
- object_value(other.object_value)
+ array_value(JSONArray(other.array_value)),
+ object_value(JSONObject(other.object_value))
 {}
 
 /**
@@ -432,19 +432,43 @@ JSONValue &JSONValue::operator=(const JSONValue &other){
   if(this == &other)
     return *this;
 
+  // std::cout << "Ref Assign: " << other.type << std::endl;
   this->type = other.type;
   switch(this->type){
     case JSONType_Null: break;
-    case JSONType_Bool: this->bool_value = other.bool_value; break;
-    case JSONType_String: this->string_value = other.string_value; break;
-    case JSONType_Number: this->number_value = other.number_value; break;
+    case JSONType_Bool: this->bool_value = bool(other.bool_value); break;
+    case JSONType_String: this->string_value = std::string(other.string_value); break;
+    case JSONType_Number: this->number_value = double(other.number_value); break;
     case JSONType_Object: 
-      FREE_OBJECT(this->object_value);
-      this->object_value = other.object_value; 
+      // FREE_OBJECT(this->object_value);
+      this->object_value = JSONObject(other.object_value); 
       break;
     case JSONType_Array:
-      FREE_ARRAY(this->array_value);
-      this->array_value = other.array_value;
+      // FREE_ARRAY(this->array_value);
+      this->array_value = JSONArray(other.array_value);
+      break;
+  }
+  return *this;
+}
+
+JSONValue &JSONValue::operator=(JSONValue *other){
+  if(this == other)
+    return *this;
+
+  // std::cout << "PTR Assign: " << other->type << std::endl;
+  this->type = other->type;
+  switch(this->type){
+    case JSONType_Null: break;
+    case JSONType_Bool: this->bool_value = bool(other->bool_value); break;
+    case JSONType_String: this->string_value = std::string(other->string_value); break;
+    case JSONType_Number: this->number_value = double(other->number_value); break;
+    case JSONType_Object: 
+      // FREE_OBJECT(this->object_value);
+      this->object_value = JSONObject(other->object_value); 
+      break;
+    case JSONType_Array:
+      // FREE_ARRAY(this->array_value);
+      this->array_value = JSONArray(other->array_value);
       break;
   }
   return *this;
@@ -725,13 +749,11 @@ JSONValue* JSONValue::Child(const std::string& name)
  * @return      [description]
  */
 bool JSONValue::HasChildAtPath(const std::string& path) const{
-  JSONValue retval(this);
+  JSONValue retval(*this);
   std::vector<std::string> comp = getPathValues(path);
 
-  std::cout << retval.type << std::endl;
-
   for (std::vector<std::string>::iterator it = comp.begin(); it != comp.end(); ++it){
-    std::cout << "Looking at: " << *it << std::endl;
+    // std::cout << "Looking for: " << *it << std::endl;
     if((*it).at(0) == '#'){
       std::stringstream sst((*it).substr(1));
       int pos;
@@ -739,18 +761,19 @@ bool JSONValue::HasChildAtPath(const std::string& path) const{
       if (retval.HasChild(pos)){
         retval = retval.Child(pos);
       } else {
-        std::cout << "No Index Child" << std::endl;
+        retval = JSONValue();
         return false;
       }
     }
     else if(retval.HasChild(*it)){
       retval = retval.Child(*it);
     } else {
-      std::cout << "No Child" << std::endl;
+      retval = JSONValue();
       return false;
     }
   }
 
+  retval = JSONValue();
   return true;
 }
 
