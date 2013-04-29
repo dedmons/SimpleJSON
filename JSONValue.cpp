@@ -407,13 +407,13 @@ JSONValue::JSONValue(const JSONValue &other):
 {
 
   if(type == JSONType_Array){
-    JSONArray_iter it = other.array_value.begin();
+    JSONArray_const_iter it = other.array_value.begin();
     while(it != other.array_value.end()){
       array_value.push_back(new JSONValue(*it));
       ++it;
     }
   } else if(type == JSONType_Object){
-    JSONObject_iter it = other.object_value.begin();
+    JSONObject_const_iter it = other.object_value.begin();
     while(it != other.object_value.end()){
       object_value[it->first] = new JSONValue(it->second);
       ++it;
@@ -431,13 +431,13 @@ JSONValue::JSONValue(const JSONValue *other):
  object_value()
 {
   if(type == JSONType_Array){
-    JSONArray_iter it = other->array_value.begin();
+    JSONArray_const_iter it = other->array_value.begin();
     while(it != other->array_value.end()){
       array_value.push_back(new JSONValue(*it));
       ++it;
     }
   } else if(type == JSONType_Object){
-    JSONObject_iter it = other->object_value.begin();
+    JSONObject_const_iter it = other->object_value.begin();
     while(it != other->object_value.end()){
       object_value[it->first] = new JSONValue(it->second);
       ++it;
@@ -454,14 +454,14 @@ JSONValue::JSONValue(const JSONValue *other):
 JSONValue::~JSONValue()
 {
   if(type == JSONType_Array){
-    JSONArray::iterator iter = array_value.begin();
+    JSONArray_iter iter = array_value.begin();
     while (iter != array_value.end()){
       delete *iter;
       iter = array_value.erase(iter);
     }
     array_value.clear();
   } else if(type == JSONType_Object){
-    JSONObject::iterator iter = object_value.begin();
+    JSONObject_iter iter = object_value.begin();
     while (iter != object_value.end()){
       delete iter->second;
       iter = object_value.erase(iter);
@@ -808,14 +808,14 @@ bool JSONValue::HasChildAtPath(const std::string& path) const{
       int pos;
       sst >> pos;
       if (retval->HasChild(pos)){
-	retval = retval->Child(pos);
+        retval = retval->Child(pos);
       } else {
         delete tmp;
         return false;
       }
     }
     else if(retval->HasChild(*it)){
-	retval = retval->Child(*it);
+      retval = retval->Child(*it);
     } else {
       delete tmp;
       return false;
@@ -883,7 +883,7 @@ std::string JSONValue::Stringify() const
 
     case JSONType_Number:
       {
-        if (isinf(number_value) || isnan(number_value))
+        if (std::isinf(number_value) || std::isnan(number_value))
           ret_string = "null";
         else
         {

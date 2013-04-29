@@ -2,7 +2,7 @@
 #   dedmons@g.clemson.edu
 
 # Warnings frequently signal eventual errors:
-CXXFLAGS=-g -pg -W -Wall -Wextra -Weffc++ -Wextra -pedantic -O0
+CXXFLAGS=-g -W -Wall -Wextra -Weffc++ -pedantic -O0
 # Linker flags for both OS X and Linux
 LDFLAGS=
 
