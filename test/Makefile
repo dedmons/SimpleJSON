@@ -2,7 +2,7 @@
 #   dedmons@g.clemson.edu
 
 # Warnings frequently signal eventual errors:
-CXXFLAGS=-g -W -Wall -Weffc++ -Wextra -pedantic -O0
+CXXFLAGS=-g -pg -W -Wall -Wextra -Weffc++ -Wextra -pedantic -O0
 # Linker flags for both OS X and Linux
 LDFLAGS=
 
@@ -53,7 +53,7 @@ setclang:
 	$(eval CXX = clang++)
 	$(eval CXX_LINK = clang++)
 ifeq ($(shell uname),Darwin)
-	$(eval CXXFLAGS = $(CXXFLAGS) -stdlib=libc++)
+	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11 -stdlib=libc++)
 else 
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 endif
@@ -97,7 +97,7 @@ $(OBJS): %.o: %.cpp
 $(DEPS): %.d: %.cpp
 	@echo "Generating "$@
 	@set -e; rm -f $@; \
-      $(CXX) -MM -std=c++11 $< > $@.$$$$; \
+      g++-4.8 -MM -std=c++11 $< > $@.$$$$; \
       sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
       rm -f $@.$$$$
 

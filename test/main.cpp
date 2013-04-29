@@ -6,44 +6,26 @@
 
 #include "../JSON.h"
 
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::duration<double, std::milli> Milli;
+
 void print(std::string s){
   std::cout << s << std::endl;
 }
 
 int main(){
-  std::cout << __cplusplus << std::endl;
-
-#ifdef __clang__
-  print("Built With Clang");
-  #if defined(__has_include) && __has_include(<unordered_map>)
-    print("Using std::unordered_map");
-  #else
-    print("Using std::map");
-  #endif
-#else 
-  print("Built With GCC");
-  #define GCC_VERSION (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100 \
-                        + __GNUC_PATCHLEVEL__)
-  #if GCC_VERSION >= 40600
-    print("GCC Version >= 4.6.0");
-    print("Using std::unordered_map");
-  #else
-    print("GCC Version < 4.6.0");
-    print("Using std::map");
-  #endif
-#endif
-
-
-
   std::ifstream t("test.json");
   std::string str((std::istreambuf_iterator<char>(t)),
                     std::istreambuf_iterator<char>());
 
+  auto start = Clock::now();
   JSONValue *value = JSON::Parse(str.c_str());
+  auto end = Clock::now();
+
   if (value != NULL){
     print("");
     print("Parsing File: PASS");
+    std::cout << "Time: " << std::chrono::duration_cast<Milli>(end-start).count() << std::endl;
     print("");
   }
   else{
