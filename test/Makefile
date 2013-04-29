@@ -6,6 +6,20 @@ CXXFLAGS=-g -pg -W -Wall -Wextra -Weffc++ -Wextra -pedantic -O0
 # Linker flags for both OS X and Linux
 LDFLAGS=
 
+ifeq (/,$(findstring /,$(shell which g++-4.8)))
+	CXX = g++-4.8
+else
+ifeq (/,$(findstring /,$(shell which g++-4.7)))
+	CXX = g++-4.7
+else
+ifeq (/,$(findstring /,$(shell which g++-4.6)))
+	CXX = g++-4.6
+else
+	CXX = g++
+endif
+endif
+endif
+
 # Generates list of object files from all the
 #   source files in directory
 OBJS = $(addsuffix .o, $(basename $(shell find *.cpp)))
@@ -54,7 +68,7 @@ setclang:
 	$(eval CXX_LINK = clang++)
 ifeq ($(shell uname),Darwin)
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11 -stdlib=libc++)
-else 
+else
 	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 endif
 
@@ -97,7 +111,7 @@ $(OBJS): %.o: %.cpp
 $(DEPS): %.d: %.cpp
 	@echo "Generating "$@
 	@set -e; rm -f $@; \
-      g++-4.8 -MM -std=c++11 $< > $@.$$$$; \
+      $(CXX) -MM $(CPPFLAGS) -std=c++0x $< > $@.$$$$; \
       sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
       rm -f $@.$$$$
 
