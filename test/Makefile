@@ -29,12 +29,6 @@ DEPS = $(OBJS:.o=.d)
 # Set executable name
 EXEC = run
 
-SCAN_BUILD = $(shell which scan-build)
-ifeq "$(SCAN_BUILD)" ""
-SCAN_BUILD="./checker-271/scan-build"
-endif
-
-
 # Declare the phony targets
 .PHONY: echo clean r clang gcc \
   setclang setgcc vg lint csa sbsetup sbclean sb
@@ -89,6 +83,7 @@ setgccdef:
 	@echo "Setting g++"
 	$(eval CXX = g++)
 	$(eval CXX_LINK = g++)
+	$(eval CXXFLAGS = $(CXXFLAGS) -std=c++11)
 
 # Phony target to use g++ for compile and linking
 setgcc:

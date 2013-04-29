@@ -3,6 +3,7 @@
 #include <fstream>
 #include <streambuf>
 #include <sstream>
+#include <chrono>
 
 #include "../JSON.h"
 

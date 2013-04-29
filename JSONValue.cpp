@@ -798,6 +798,7 @@ bool JSONValue::HasChildAtPath(const std::string& path) const{
    */
 
   JSONValue* retval = new JSONValue(this);
+  JSONValue* tmp = retval;
   std::vector<std::string> comp = getPathValues(path);
 
   for (std::vector<std::string>::iterator it = comp.begin(); it != comp.end(); ++it){
@@ -807,21 +808,21 @@ bool JSONValue::HasChildAtPath(const std::string& path) const{
       int pos;
       sst >> pos;
       if (retval->HasChild(pos)){
-        retval = retval->Child(pos);
+	retval = retval->Child(pos);
       } else {
-        delete retval;
+        delete tmp;
         return false;
       }
     }
     else if(retval->HasChild(*it)){
-      retval = retval->Child(*it);
+	retval = retval->Child(*it);
     } else {
-      delete retval;
+      delete tmp;
       return false;
     }
   }
 
-  delete retval;
+  delete tmp;
   return true;
 }
 
