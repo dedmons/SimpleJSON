@@ -42,7 +42,7 @@ gccd: | setgccdef $(EXEC)
 
 # Uses cppcheck for more static analysys
 lint:
-	cppcheck ./*.h ./*.cpp
+	cppcheck ../*.h ../*.cpp
 
 # Run the executable
 r:
@@ -92,7 +92,7 @@ setgcc:
 	@echo "||  You must specify what version of GCC you are using ||"
 	@echo "||    Example: make gcc47 or make gcc46                ||"
 	@echo "||                                                     ||"
-	@echo "||  Or use a better compiler like clang :D             ||"
+	@echo "||  Or use a better compiler like clang :P             ||"
 	@echo "\\=====================================================//"
 	@echo ""
 
@@ -110,7 +110,7 @@ $(DEPS): %.d: %.cpp
       sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
       rm -f $@.$$$$
 
-# Link all the object files together into exicutible
+# Link all the object files together into executable
 $(EXEC): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
